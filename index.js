@@ -8,51 +8,40 @@
 /**
  * get all children of given inode with promise
  * @callback getChild
- * @param {} node
+ * @param {*} node - parent node
+ * @returns {Promise[]} - array of child of node if fullfilled
  */
 /**
- * check if the given node is inode or not
- * @callback inodeDeterminator
- * @param {} node
+ * @callback determinetor
+ * @param {*} node
+ * @returns {Promise} - true or false if fullfilled
  */
 /**
- * check if the given node is leaf or not
- * @callback lefaDeterminator
- * @param {} node
- */
-/**
- * callback function on inode
- * @callback onInodeCallback
- * @param {} node
- */
-/**
- * callback function on leaf
- * @callback onLeafCallback
- * @param {} node
+ * @callback onNode
+ * @param {*} node
+ * @returns {Promise}
  */
 
 /**
  * asynchronous tree walk function which returns promise
  * @param node - start point of recursive walk
  * @param {getChild} getChild
- * @param {inodeDeterminator} isInode
- * @param {leafDeterminator} isLeaf
- * @param {onInodeCallback} onInode
- * @param {onLeafCallback} onLeaf
+ * @param {determinator} isInode - determinator function which return true if given node is inode
+ * @param {determinator} isLeaf  - determinator function which return true if given node is leaf
+ * @param {onNode} onInode - callback function which perform on inode
+ * @param {onNode} onLeaf  - callback function which perform on leaf node
  */
 async function walk(node, getChild, isInode, isLeaf, onInode, onLeaf){
   const children = await getChild(node);
-  const p = children
-    .map(async (e)=>{
-      if(await isLeaf(e)){
-        return onLeaf(e);
+  return Promise.all(children
+    .map(async (node)=>{
+      if(await isLeaf(node)){
+        return onLeaf(node);
+      }else if(await isInode(node)){
+        await onInode(node);
+        return walk(node, getChild, isInode, isLeaf, onInode, onLeaf);
       }
-      if(await isInode(e)){
-        await onInode(e);
-        return walk(e, getChild, isInode, isLeaf, onInode, onLeaf);
-      }
-    });
-  return Promise.all(p);
+    }));
 }
 
 module.exports = walk;
