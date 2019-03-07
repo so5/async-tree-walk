@@ -4,13 +4,12 @@
   "description": "asynchronous(promised) tree walk with DI pattern",
   "main": "index.js",
   "scripts": {
-    "format": "prettier-eslint --write */*.js",
-    "mocha": "mocha",
-    "mocha-v": "cross-env DEBUG=arssh2:* mocha",
-    "check": "run-s format lint test",
-    "lint": "eslint lib/*.js test/*.js",
+    "mocha": "mocha --recursive test",
+    "lint": "eslint --fix lib test",
     "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "check": "run-s lint test",
+    "postversion": "git push origin $(git describe --abbrev=0 --tags)"
   },
   "repository": {
     "type": "git",
